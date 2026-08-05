@@ -1,0 +1,64 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:16
+                env:
+                    POSTGRES_DB: netflix
+                    POSTGRES_USER: postgres
+                    # Unique per run, so there is no hardcoded secret to leak.
+                    POSTGRES_PASSWORD: ${{ github.run_id }}
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd "pg_isready -U postgres"
+                    --health-interval 5s
+                    --health-timeout 5s
+                    --health-retries 5
+
+        env:
+            DATABASE_URL: postgres://postgres:${{ github.run_id }}@localhost:5432/netflix
+            SECRET_KEY: ci-insecure-key
+            DEBUG: "0"
+            ALLOWED_HOSTS: localhost,127.0.0.1
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+                  cache: pip
+
+            - name: Install dependencies
+              run: pip install -r requirements-dev.txt
+
+            - name: Install Playwright browser
+              run: python -m playwright install --with-deps chromium
+
+            - name: Apply migrations
+              run: python manage.py migrate --noinput
+
+            - name: Unit tests (inner loop)
+              run: pytest catalog --cov --cov-report=
+
+            - name: Functional tests (outer loop)
+              # --cov-append adds to the unit-test data instead of overwriting it,
+              # so the final report reflects both loops.
+              run: pytest functional_tests --cov --cov-append --cov-report=term --cov-report=xml
+
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v5
+              with:
+                  files: ./coverage.xml
+                  token: ${{ secrets.CODECOV_TOKEN }}
+                  fail_ci_if_error: false

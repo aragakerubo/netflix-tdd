@@ -22,7 +22,6 @@ docker compose up -d db
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 python -m playwright install chromium
-export DATABASE_URL=postgres://postgres:postgres@localhost:5432/netflix
-export SECRET_KEY=dev DEBUG=1
+set -a && source .env && set +a   # export the values from .env
 pytest
 ```
