@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reelflix</title>
+</head>
+
+<body>
+    <header>
+        <h1>Reelflix</h1>
+        <form action="{% url 'catalog:home' %}" method="get" role="search">
+            <input type="search" name="q" value="{{ query }}" placeholder="Search titles" aria-label="Search titles">
+            <button type="submit">Search</button>
+        </form>
+    </header>
+    <main>
+        <h2>{% if query %}Results for "{{ query }}"{% else %}Browse{% endif %}</h2>
+        {% if titles %}
+        <ul class="title-grid">
+            {% for title in titles %}
+            <li class="title-card">
+                <span class="title-name">{{ title.name }}</span>
+                {% if title.year %}<span class="title-year">{{ title.year }}</span>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No titles found.</p>
+        {% endif %}
+    </main>
+</body>
+
+</html>

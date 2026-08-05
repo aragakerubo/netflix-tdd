@@ -1,0 +1,17 @@
+[run]
+source = catalog,config
+branch = True
+omit =
+    */migrations/*
+    */tests/*
+    config/wsgi.py
+    config/asgi.py
+    manage.py
+
+[report]
+show_missing = True
+skip_covered = True
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    raise NotImplementedErrors
