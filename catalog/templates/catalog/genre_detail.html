@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ genre.name }} - Reelflix</title>
+</head>
+
+<body>
+    <header>
+        <a href="{% url 'catalog:home' %}">Reelflix</a>
+    </header>
+    <main>
+        <h1>{{ genre.name }}</h1>
+        {% include "catalog/_title_grid.html" %}
+    </main>
+</body>
+
+</html>

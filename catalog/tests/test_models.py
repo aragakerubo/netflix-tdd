@@ -27,3 +27,18 @@ def test_tmdb_fields_default_to_empty():
 
 def test_get_absolute_url_points_at_the_detail_page(matrix):
     assert matrix.get_absolute_url() == f"/titles/{matrix.slug}/"
+
+
+def test_genre_str_and_slug(action):
+    assert str(action) == "Action"
+    assert action.slug == "action"
+
+
+def test_genre_absolute_url_points_at_the_genre_page(action):
+    assert action.get_absolute_url() == f"/genres/{action.slug}/"
+
+
+def test_title_can_have_genres(matrix, action):
+    matrix.genres.add(action)
+    assert action in matrix.genres.all()
+    assert matrix in action.titles.all()
