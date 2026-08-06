@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title.name }} - Reelflix</title>
+</head>
+
+<body>
+    <header>
+        <a href="{% url 'catalog:home' %}">Reelflix</a>
+    </header>
+    <main>
+        <h1>{{ title.name }}{% if title.year %} ({{ title.year }}){% endif %}</h1>
+        {% if title.description %}<p class="description">{{ title.description }}</p>{% endif %}
+        <dl>
+            {% if title.runtime %}<dt>Runtime</dt>
+            <dd>{{ title.runtime }} min</dd>{% endif %}
+            {% if title.rating %}<dt>Rating</dt>
+            <dd>{{ title.rating }}/10</dd>{% endif %}
+            <dt>Type</dt>
+            <dd>{{ title.get_media_type_display }}</dd>
+        </dl>
+    </main>
+</body>
+
+</html>

@@ -13,3 +13,21 @@ def test_visitor_searches_for_a_title(live_server, page):
     # The matching title appears and the other one does not.
     page.get_by_text("The Matrix").wait_for()
     assert page.get_by_text("Inception").count() == 0
+
+
+def test_visitor_opens_a_title_detail_page(live_server, page):
+    from catalog.models import Title
+
+    Title.objects.create(
+        name="The Matrix",
+        year=1999,
+        description="A hacker learns the truth.",
+        runtime=136,
+        rating="8.7",
+    )
+
+    page.goto(live_server.url)
+    page.get_by_role("link", name="The Matrix").click()
+
+    page.get_by_role("heading", name="The Matrix (1999)").wait_for()
+    page.get_by_text("A hacker learns the truth.").wait_for()
