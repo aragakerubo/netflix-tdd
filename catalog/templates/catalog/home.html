@@ -17,18 +17,7 @@
     </header>
     <main>
         <h2>{% if query %}Results for "{{ query }}"{% else %}Browse{% endif %}</h2>
-        {% if titles %}
-        <ul class="title-grid">
-            {% for title in titles %}
-            <li class="title-card">
-                <a href="{{ title.get_absolute_url }}" class="title-name">{{ title.name }}</a>
-                {% if title.year %}<span class="title-year">{{ title.year }}</span>{% endif %}
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p>No titles found.</p>
-        {% endif %}
+        {% include "catalog/_title_grid.html" %}
     </main>
 </body>
 

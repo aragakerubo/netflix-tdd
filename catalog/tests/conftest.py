@@ -1,6 +1,6 @@
 import pytest
 
-from catalog.models import Title
+from catalog.models import Genre, Title
 
 
 @pytest.fixture
@@ -12,3 +12,8 @@ def matrix(db):
         runtime=136,
         rating="8.7",
     )
+
+
+@pytest.fixture
+def action(db):
+    return Genre.objects.create(name="Action")

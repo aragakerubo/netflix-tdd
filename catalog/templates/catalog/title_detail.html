@@ -14,6 +14,13 @@
     <main>
         <h1>{{ title.name }}{% if title.year %} ({{ title.year }}){% endif %}</h1>
         {% if title.description %}<p class="description">{{ title.description }}</p>{% endif %}
+        {% if title.genres.all %}
+        <p class="genres">
+            {% for genre in title.genres.all %}
+            <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+        {% endif %}
         <dl>
             {% if title.runtime %}<dt>Runtime</dt>
             <dd>{{ title.runtime }} min</dd>{% endif %}

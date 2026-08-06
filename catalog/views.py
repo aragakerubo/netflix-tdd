@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 
-from .models import Title
+from .models import Genre, Title
 
 
 def home(request):
@@ -19,3 +19,13 @@ def home(request):
 def title_detail(request, slug):
     title = get_object_or_404(Title, slug=slug)
     return render(request, "catalog/title_detail.html", {"title": title})
+
+
+def genre_detail(request, slug):
+    genre = get_object_or_404(Genre, slug=slug)
+    titles = genre.titles.all()
+    return render(
+        request,
+        "catalog/genre_detail.html",
+        {"genre": genre, "titles": titles},
+    )

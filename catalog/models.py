@@ -1,16 +1,28 @@
 from django.db import models
-from django.utils.text import slugify
 from django.urls import reverse
+from django.utils.text import slugify
+
+
+class Genre(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True, blank=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("catalog:genre_detail", args=[self.slug])
 
 
 class Title(models.Model):
-    """A movie or TV show in the catalog.
-
-    Core fields (name, slug, description, year) cover admin-created content.
-    The remaining fields mirror TMDB's payload so a later import chapter can
-    populate them without changing the schema.
-    """
-
     class MediaType(models.TextChoices):
         MOVIE = "movie", "Movie"
         TV = "tv", "TV Show"
@@ -24,8 +36,8 @@ class Title(models.Model):
         choices=MediaType.choices,
         default=MediaType.MOVIE,
     )
+    genres = models.ManyToManyField(Genre, related_name="titles", blank=True)
 
-    # Populated from TMDB later. Nullable/blank so admin-created titles work now.
     tmdb_id = models.PositiveIntegerField(null=True, blank=True, unique=True)
     poster_path = models.CharField(max_length=255, blank=True)
     backdrop_path = models.CharField(max_length=255, blank=True)

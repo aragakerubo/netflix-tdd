@@ -61,3 +61,24 @@ def test_detail_page_returns_404_for_unknown_slug(client):
 def test_home_links_each_title_to_its_detail_page(client, matrix):
     response = client.get("/")
     assert matrix.get_absolute_url().encode() in response.content
+
+
+def test_genre_page_lists_titles_in_that_genre(client, matrix, action):
+    matrix.genres.add(action)
+    Title.objects.create(name="Inception", year=2010)
+    response = client.get(action.get_absolute_url())
+    assert response.status_code == 200
+    assert b"The Matrix" in response.content
+    assert b"Inception" not in response.content
+
+
+def test_genre_page_returns_404_for_unknown_slug(client):
+    response = client.get("/genres/does-not-exist/")
+    assert response.status_code == 404
+
+
+def test_detail_page_links_to_its_genres(client, matrix, action):
+    matrix.genres.add(action)
+    response = client.get(matrix.get_absolute_url())
+    assert action.get_absolute_url().encode() in response.content
+    assert b"Action" in response.content
