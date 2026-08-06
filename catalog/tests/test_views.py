@@ -42,3 +42,22 @@ def test_search_with_no_matches_shows_a_message(client):
     Title.objects.create(name="The Matrix", year=1999)
     response = client.get("/", {"q": "zzzzz"})
     assert b"No titles found" in response.content
+
+
+def test_detail_page_shows_title_information(client, matrix):
+    response = client.get(matrix.get_absolute_url())
+    assert response.status_code == 200
+    assert b"The Matrix" in response.content
+    assert b"A hacker learns the truth." in response.content
+    assert b"1999" in response.content
+    assert b"136" in response.content
+
+
+def test_detail_page_returns_404_for_unknown_slug(client):
+    response = client.get("/titles/does-not-exist/")
+    assert response.status_code == 404
+
+
+def test_home_links_each_title_to_its_detail_page(client, matrix):
+    response = client.get("/")
+    assert matrix.get_absolute_url().encode() in response.content

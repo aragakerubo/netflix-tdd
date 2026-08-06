@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from .models import Title
 
@@ -14,3 +14,8 @@ def home(request):
         "catalog/home.html",
         {"titles": titles, "query": query},
     )
+
+
+def title_detail(request, slug):
+    title = get_object_or_404(Title, slug=slug)
+    return render(request, "catalog/title_detail.html", {"title": title})

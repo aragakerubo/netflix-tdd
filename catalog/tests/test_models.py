@@ -23,3 +23,7 @@ def test_tmdb_fields_default_to_empty():
     assert title.poster_path == ""
     assert title.rating is None
     assert title.media_type == "movie"
+
+
+def test_get_absolute_url_points_at_the_detail_page(matrix):
+    assert matrix.get_absolute_url() == f"/titles/{matrix.slug}/"
