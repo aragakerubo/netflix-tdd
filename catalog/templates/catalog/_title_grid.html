@@ -2,11 +2,22 @@
 <ul class="title-grid">
     {% for title in titles %}
     <li class="title-card">
-        <a href="{{ title.get_absolute_url }}" class="title-name">{{ title.name }}</a>
-        {% if title.year %}<span class="title-year">{{ title.year }}</span>{% endif %}
+        <a class="title-link" href="{{ title.get_absolute_url }}">
+            {% if title.poster_path %}
+            <img class="poster" src="https://image.tmdb.org/t/p/w500{{ title.poster_path }}" alt="">
+            {% else %}
+            <span class="poster poster--empty" aria-hidden="true"></span>
+            {% endif %}
+            <span class="title-name">
+                {{ title.name }}
+                {% if title.year %}
+                <span class="title-year">{{ title.year }}</span>
+                {% endif %}
+            </span>
+        </a>
     </li>
     {% endfor %}
 </ul>
 {% else %}
-<p>No titles found.</p>
+<p class="empty">No titles found.</p>
 {% endif %}
