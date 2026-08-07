@@ -1,24 +1,10 @@
-<!doctype html>
-<html lang="en">
+{% extends "catalog/base.html" %}
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reelflix</title>
-</head>
-
-<body>
-    <header>
-        <h1>Reelflix</h1>
-        <form action="{% url 'catalog:home' %}" method="get" role="search">
-            <input type="search" name="q" value="{{ query }}" placeholder="Search titles" aria-label="Search titles">
-            <button type="submit">Search</button>
-        </form>
-    </header>
-    <main>
-        <h2>{% if query %}Results for "{{ query }}"{% else %}Browse{% endif %}</h2>
-        {% include "catalog/_title_grid.html" %}
-    </main>
-</body>
-
-</html>
+{% block content %}
+<section class="hero">
+    <h1 class="hero-title">Reelflix</h1>
+    <p class="hero-tag">Browse and search the catalog.</p>
+</section>
+<h2 class="section-title">{% if query %}Results for "{{ query }}"{% else %}Browse{% endif %}</h2>
+{% include "catalog/_title_grid.html" %}
+{% endblock %}

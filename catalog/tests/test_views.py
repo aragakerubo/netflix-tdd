@@ -7,6 +7,11 @@ from catalog.models import Title
 pytestmark = pytest.mark.django_db
 
 
+def test_pages_link_the_stylesheet(client):
+    response = client.get("/")
+    assert b"catalog/styles.css" in response.content
+
+
 def test_home_page_returns_200(client):
     response = client.get("/")
     assert response.status_code == 200

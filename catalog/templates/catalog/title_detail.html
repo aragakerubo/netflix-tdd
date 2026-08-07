@@ -1,35 +1,46 @@
-<!doctype html>
-<html lang="en">
+{% extends "catalog/base.html" %}
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ title.name }} - Reelflix</title>
-</head>
+{% block title %}{{ title.name }} - Reelflix{% endblock %}
 
-<body>
-    <header>
-        <a href="{% url 'catalog:home' %}">Reelflix</a>
-    </header>
-    <main>
-        <h1>{{ title.name }}{% if title.year %} ({{ title.year }}){% endif %}</h1>
-        {% if title.description %}<p class="description">{{ title.description }}</p>{% endif %}
-        {% if title.genres.all %}
-        <p class="genres">
-            {% for genre in title.genres.all %}
-            <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>{% if not forloop.last %}, {% endif %}
-            {% endfor %}
-        </p>
+{% block content %}
+<article class="detail">
+    {% if title.backdrop_path %}
+    <div class="detail-hero" style="background-image:url('https://image.tmdb.org/t/p/w1280{{ title.backdrop_path }}')">
+    </div>
+    {% endif %}
+    <div class="detail-body">
+        {% if title.poster_path %}
+        <img class="detail-poster" src="https://image.tmdb.org/t/p/w500{{ title.poster_path }}" alt="">
         {% endif %}
-        <dl>
-            {% if title.runtime %}<dt>Runtime</dt>
-            <dd>{{ title.runtime }} min</dd>{% endif %}
-            {% if title.rating %}<dt>Rating</dt>
-            <dd>{{ title.rating }}/10</dd>{% endif %}
-            <dt>Type</dt>
-            <dd>{{ title.get_media_type_display }}</dd>
-        </dl>
-    </main>
-</body>
-
-</html>
+        <div class="detail-info">
+            <h1>{{ title.name }}{% if title.year %} ({{ title.year }}){% endif %}</h1>
+            {% if title.genres.all %}
+            <p class="genres">
+                {% for genre in title.genres.all %}
+                <a class="chip" href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
+                {% endfor %}
+            </p>
+            {% endif %}
+            {% if title.description %}<p class="description">{{ title.description }}</p>{% endif %}
+            <dl class="meta">
+                {% if title.runtime %}
+                <div>
+                    <dt>Runtime</dt>
+                    <dd>{{ title.runtime }} min</dd>
+                </div>
+                {% endif %}
+                {% if title.rating %}
+                <div>
+                    <dt>Rating</dt>
+                    <dd>{{ title.rating }}/10</dd>
+                </div>
+                {% endif %}
+                <div>
+                    <dt>Type</dt>
+                    <dd>{{ title.get_media_type_display }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</article>
+{% endblock %}
