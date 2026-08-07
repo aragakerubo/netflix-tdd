@@ -51,3 +51,22 @@ def test_visitor_browses_a_genre_from_a_title(live_server, page):
 
     page.get_by_role("heading", name="Action").wait_for()
     page.get_by_text("The Matrix").wait_for()
+
+
+def test_editor_adds_a_title_through_the_admin(live_server, page, django_user_model):
+    django_user_model.objects.create_superuser(username="editor", password="pass12345")
+
+    # Sign in to the Django admin.
+    page.goto(live_server.url + "/admin/")
+    page.get_by_label("Username:").fill("editor")
+    page.get_by_label("Password:").fill("pass12345")
+    page.get_by_role("button", name="Log in").click()
+
+    # Add a title.
+    page.goto(live_server.url + "/admin/catalog/title/add/")
+    page.get_by_label("Name:").fill("The Matrix")
+    page.get_by_role("button", name="Save", exact=True).click()
+
+    # It now appears on the public home page.
+    page.goto(live_server.url)
+    page.get_by_role("link", name="The Matrix").wait_for()
