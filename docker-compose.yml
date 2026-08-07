@@ -28,6 +28,7 @@ services:
       SECRET_KEY: ${SECRET_KEY:-dev-insecure-change-me}
       DEBUG: "1"
       ALLOWED_HOSTS: "*"
+      TMDB_API_KEY: ${TMDB_API_KEY:-}
     volumes:
       - .:/app
     ports:
