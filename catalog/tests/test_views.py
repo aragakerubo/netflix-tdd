@@ -87,3 +87,9 @@ def test_detail_page_links_to_its_genres(client, matrix, action):
     response = client.get(matrix.get_absolute_url())
     assert action.get_absolute_url().encode() in response.content
     assert b"Action" in response.content
+
+
+def test_healthz_returns_ok(client):
+    response = client.get("/healthz/")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
