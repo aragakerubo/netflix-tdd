@@ -59,3 +59,25 @@ def import_title(tmdb_id):
     title.genres.set(genres)
 
     return title
+
+
+def fetch_popular_movies(page=1):
+    """Return one page of TMDB's popular movies as summary objects."""
+    api_key = os.environ.get("TMDB_API_KEY", "")
+    url = f"{TMDB_BASE_URL}/movie/popular"
+    response = requests.get(url, params={"api_key": api_key, "page": page}, timeout=10)
+    response.raise_for_status()
+    return response.json()["results"]
+
+
+def populate_popular(pages=1):
+    """Import popular movies from TMDB, one detail fetch per title.
+
+    Reuses import_title, so it is idempotent on tmdb_id: re-running updates
+    existing rows instead of creating duplicates. Returns the imported Titles.
+    """
+    imported = []
+    for page in range(1, pages + 1):
+        for summary in fetch_popular_movies(page):
+            imported.append(import_title(summary["id"]))
+    return imported

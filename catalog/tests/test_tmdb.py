@@ -67,3 +67,38 @@ def test_import_command_creates_the_title(mock_fetch):
     mock_fetch.return_value = SAMPLE
     call_command("import_title", "603")
     assert Title.objects.filter(tmdb_id=603).exists()
+
+
+@patch("catalog.tmdb.requests.get")
+def test_fetch_popular_movies_requests_popular_endpoint(mock_get):
+    mock_get.return_value.json.return_value = {"results": [{"id": 603}]}
+    mock_get.return_value.raise_for_status.return_value = None
+    results = tmdb.fetch_popular_movies(page=2)
+    assert results == [{"id": 603}]
+    assert "/movie/popular" in mock_get.call_args[0][0]
+    assert mock_get.call_args.kwargs["params"]["page"] == 2
+
+
+@patch("catalog.tmdb.fetch_movie")
+@patch("catalog.tmdb.fetch_popular_movies")
+def test_populate_popular_imports_each_movie(mock_popular, mock_fetch):
+    mock_popular.return_value = [{"id": 603}, {"id": 27205}]
+    mock_fetch.side_effect = lambda tmdb_id: {
+        **SAMPLE,
+        "id": tmdb_id,
+        "title": f"Movie {tmdb_id}",
+    }
+    titles = tmdb.populate_popular(pages=1)
+    assert len(titles) == 2
+    assert Title.objects.count() == 2
+
+
+@patch("catalog.tmdb.fetch_movie")
+@patch("catalog.tmdb.fetch_popular_movies")
+def test_populate_command_creates_titles(mock_popular, mock_fetch):
+    from django.core.management import call_command
+
+    mock_popular.return_value = [{"id": 603}]
+    mock_fetch.side_effect = lambda tmdb_id: {**SAMPLE, "id": tmdb_id}
+    call_command("populate_catalog", "--pages", "1")
+    assert Title.objects.filter(tmdb_id=603).exists()
