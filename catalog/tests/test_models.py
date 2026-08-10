@@ -42,3 +42,11 @@ def test_title_can_have_genres(matrix, action):
     matrix.genres.add(action)
     assert action in matrix.genres.all()
     assert matrix in action.titles.all()
+
+
+def test_titles_with_the_same_name_get_distinct_slugs(db):
+    first = Title.objects.create(name="The Odyssey", tmdb_id=1)
+    second = Title.objects.create(name="The Odyssey", tmdb_id=2)
+    assert first.slug == "the-odyssey"
+    assert second.slug != first.slug
+    assert second.slug.startswith("the-odyssey")
