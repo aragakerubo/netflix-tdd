@@ -23,6 +23,13 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
+    """A movie or TV show in the catalog.
+
+    Core fields (name, slug, description, year) cover admin-created content.
+    The remaining fields mirror TMDB's payload so a later import chapter can
+    populate them without changing the schema.
+    """
+
     class MediaType(models.TextChoices):
         MOVIE = "movie", "Movie"
         TV = "tv", "TV Show"
@@ -38,6 +45,7 @@ class Title(models.Model):
     )
     genres = models.ManyToManyField(Genre, related_name="titles", blank=True)
 
+    # Populated from TMDB later. Nullable/blank so admin-created titles work now.
     tmdb_id = models.PositiveIntegerField(null=True, blank=True, unique=True)
     poster_path = models.CharField(max_length=255, blank=True)
     backdrop_path = models.CharField(max_length=255, blank=True)
@@ -64,8 +72,12 @@ class Title(models.Model):
 
         Title names are not unique (TMDB has several movies called
         "The Odyssey"), so slugify alone can violate the unique constraint.
+        Names with no ASCII letters (many non-Latin titles) slugify to an empty
+        string, which breaks URL reversing, so fall back to the tmdb_id.
         """
         base = slugify(self.name)
+        if not base:
+            base = str(self.tmdb_id) if self.tmdb_id else "title"
         slug = base
         counter = 2
         clashes = Title.objects.exclude(pk=self.pk)
