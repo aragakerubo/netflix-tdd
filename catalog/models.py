@@ -59,9 +59,24 @@ class Title(models.Model):
     def __str__(self):
         return self.name
 
+    def _unique_slug(self):
+        """Build a slug from the name, appending -2, -3, ... on collision.
+
+        Title names are not unique (TMDB has several movies called
+        "The Odyssey"), so slugify alone can violate the unique constraint.
+        """
+        base = slugify(self.name)
+        slug = base
+        counter = 2
+        clashes = Title.objects.exclude(pk=self.pk)
+        while clashes.filter(slug=slug).exists():
+            slug = f"{base}-{counter}"
+            counter += 1
+        return slug
+
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = self._unique_slug()
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
