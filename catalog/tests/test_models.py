@@ -50,3 +50,9 @@ def test_titles_with_the_same_name_get_distinct_slugs(db):
     assert first.slug == "the-odyssey"
     assert second.slug != first.slug
     assert second.slug.startswith("the-odyssey")
+
+
+def test_non_latin_name_still_gets_a_usable_slug(db):
+    title = Title.objects.create(name="君の名は", tmdb_id=372058)
+    assert title.slug != ""
+    assert title.get_absolute_url() == f"/titles/{title.slug}/"
