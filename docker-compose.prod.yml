@@ -1,0 +1,20 @@
+# Production overrides. Use together with the base file:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# The base web service runs Django's dev server; this override runs gunicorn,
+# turns off DEBUG, and turns on the production security hardening in settings.
+services:
+  db:
+    restart: unless-stopped
+    ports: [] # do not expose Postgres to the host in production
+
+  web:
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    environment:
+      DEBUG: "0"
+      DJANGO_PRODUCTION: "1"
+      SECRET_KEY: ${SECRET_KEY:?set a strong SECRET_KEY in .env}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:?set your domain in .env}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-}
+      TMDB_API_KEY: ${TMDB_API_KEY:-}
+    restart: unless-stopped

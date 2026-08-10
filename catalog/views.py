@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, render
+from django.http import JsonResponse
 
 from .models import Genre, Title
 
@@ -29,3 +30,8 @@ def genre_detail(request, slug):
         "catalog/genre_detail.html",
         {"genre": genre, "titles": titles},
     )
+
+
+def healthz(request):
+    """Liveness probe for deploy platforms and uptime checks."""
+    return JsonResponse({"status": "ok"})
