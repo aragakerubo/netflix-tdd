@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from django.conf import settings
 
 
 class Genre(models.Model):
@@ -106,3 +107,34 @@ class Title(models.Model):
 
     def get_watch_url(self):
         return reverse("catalog:title_watch", args=[self.slug])
+
+
+class WatchlistItem(models.Model):
+    """A title one user has saved to watch later.
+
+    Unique per (user, title), so saving the same title twice is prevented at
+    the database level rather than only in the view.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="watchlist_items",
+    )
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name="watchlist_items",
+    )
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-added_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "title"], name="unique_watchlist_entry"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user.username}: {self.title.name}"

@@ -103,3 +103,23 @@ def test_visitor_plays_a_trailer_from_the_detail_page(live_server, page):
     page.wait_for_url("**/watch/")
     player = page.locator("iframe")
     player.wait_for()
+
+
+def test_user_saves_a_title_to_their_list(live_server, page, django_user_model):
+    from catalog.models import Title
+
+    django_user_model.objects.create_user(username="saver", password="pass12345")
+    matrix = Title.objects.create(name="The Matrix", year=1999)
+
+    page.goto(live_server.url + "/accounts/login/")
+    page.get_by_label("Username:").fill("saver")
+    page.get_by_label("Password:").fill("pass12345")
+    page.get_by_role("button", name="Log in").click()
+
+    page.goto(live_server.url + matrix.get_absolute_url())
+    page.get_by_role("button", name="Add to My List").click()
+
+    # The button flips to remove, and the title shows on My List.
+    page.get_by_role("button", name="Remove from My List").wait_for()
+    page.get_by_role("link", name="My List").click()
+    page.get_by_role("link", name="The Matrix").wait_for()
