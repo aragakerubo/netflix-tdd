@@ -136,3 +136,15 @@ def test_visitor_filters_the_grid_to_tv_shows(live_server, page):
 
     page.get_by_role("link", name="Breaking Bad").wait_for()
     assert page.get_by_role("link", name="The Matrix").count() == 0
+
+
+def test_visitor_pages_through_the_catalog(live_server, page):
+    from catalog.models import Title
+
+    for i in range(30):
+        Title.objects.create(name=f"Title {i:02d}", tmdb_id=i)
+
+    page.goto(live_server.url)
+    page.get_by_text("Page 1 of 2").wait_for()
+    page.get_by_role("link", name="Next").click()
+    page.get_by_text("Page 2 of 2").wait_for()
