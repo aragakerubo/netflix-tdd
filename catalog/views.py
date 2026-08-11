@@ -5,9 +5,12 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.core.paginator import Paginator
 
 from .models import Genre, Title, WatchlistItem
 from .models import Genre, Title
+
+PAGE_SIZE = 24
 
 
 class SignupView(CreateView):
@@ -24,14 +27,23 @@ def home(request):
 
     titles = Title.objects.all()
     if query:
-        titles = titles.filter(name__icontains=query)
+        titles = titles.search(query)
     if media in Title.MediaType.values:
         titles = titles.filter(media_type=media)
+
+    # get_page is forgiving by design: a non-numeric page returns page 1 and an
+    # out-of-range page returns the last, so a stale link never 404s.
+    page_obj = Paginator(titles, PAGE_SIZE).get_page(request.GET.get("page"))
 
     return render(
         request,
         "catalog/home.html",
-        {"titles": titles, "query": query, "media": media},
+        {
+            "titles": page_obj.object_list,
+            "page_obj": page_obj,
+            "query": query,
+            "media": media,
+        },
     )
 
 

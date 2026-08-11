@@ -473,3 +473,36 @@ a {
   color: #23180a;
   font-weight: 700;
 }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2.5rem 0 1rem;
+}
+
+.page-link {
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--edge);
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.page-link:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.page-link.disabled {
+  color: var(--ink-dim);
+  opacity: 0.5;
+}
+
+.page-status {
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+}

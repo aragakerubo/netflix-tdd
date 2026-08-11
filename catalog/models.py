@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.text import slugify
-from django.conf import settings
 
 
 class Genre(models.Model):
@@ -21,6 +22,25 @@ class Genre(models.Model):
 
     def get_absolute_url(self):
         return reverse("catalog:genre_detail", args=[self.slug])
+
+
+class TitleQuerySet(models.QuerySet):
+    """Query helpers for browsing the catalog."""
+
+    def search(self, query):
+        """Match titles whose name or description contains every search word.
+
+        Requiring every word (rather than any) keeps multi-word searches
+        specific: "dark knight" should not return everything with "knight".
+        Matching the description as well as the name means a plot keyword
+        finds a title even when the name does not contain it.
+        """
+        results = self
+        for word in query.split():
+            results = results.filter(
+                Q(name__icontains=word) | Q(description__icontains=word)
+            )
+        return results
 
 
 class Title(models.Model):
@@ -67,6 +87,8 @@ class Title(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    objects = TitleQuerySet.as_manager()
+
     class Meta:
         ordering = ["name"]
 
@@ -97,13 +119,13 @@ class Title(models.Model):
             self.slug = self._unique_slug()
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return reverse("catalog:title_detail", args=[self.slug])
-
     @property
     def has_trailer(self):
         """True when a trailer is available to play."""
         return bool(self.trailer_key)
+
+    def get_absolute_url(self):
+        return reverse("catalog:title_detail", args=[self.slug])
 
     def get_watch_url(self):
         return reverse("catalog:title_watch", args=[self.slug])
