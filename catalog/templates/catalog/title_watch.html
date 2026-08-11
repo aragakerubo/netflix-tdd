@@ -1,0 +1,13 @@
+{% extends "catalog/base.html" %}
+
+{% block title %}Watch {{ title.name }} - Reelflix{% endblock %}
+
+{% block content %}
+<h1 class="page-title">{{ title.name }}{% if title.year %} ({{ title.year }}){% endif %}</h1>
+<div class="player">
+  <iframe src="https://www.youtube.com/embed/{{ title.trailer_key }}" title="{{ title.name }} trailer"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+<p class="auth-alt"><a href="{{ title.get_absolute_url }}">Back to {{ title.name }}</a></p>
+{% endblock %}

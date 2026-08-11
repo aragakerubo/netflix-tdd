@@ -21,6 +21,11 @@
                 {% endfor %}
             </p>
             {% endif %}
+            {% if title.has_trailer %}
+            <p class="play">
+                <a class="play-button" href="{{ title.get_watch_url }}">Play trailer</a>
+            </p>
+            {% endif %}
             {% if title.description %}<p class="description">{{ title.description }}</p>{% endif %}
             <dl class="meta">
                 {% if title.runtime %}

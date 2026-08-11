@@ -52,6 +52,13 @@ def import_title(tmdb_id):
         },
     )
 
+    try:
+        title.trailer_key = pick_trailer_key(fetch_movie_videos(data["id"]))
+        title.save(update_fields=["trailer_key"])
+    except Exception:
+        # A missing or failing video list should not fail the whole import.
+        pass
+
     genres = []
     for entry in data.get("genres", []):
         genre, _ = Genre.objects.get_or_create(name=entry["name"])
@@ -81,3 +88,30 @@ def populate_popular(pages=1):
         for summary in fetch_popular_movies(page):
             imported.append(import_title(summary["id"]))
     return imported
+
+
+def fetch_movie_videos(tmdb_id):
+    """Return TMDB's video list for a movie (trailers, teasers, clips)."""
+    api_key = os.environ.get("TMDB_API_KEY", "")
+    url = f"{TMDB_BASE_URL}/movie/{tmdb_id}/videos"
+    response = requests.get(url, params={"api_key": api_key}, timeout=10)
+    response.raise_for_status()
+    return response.json().get("results", [])
+
+
+def pick_trailer_key(videos):
+    """Choose the best YouTube key from a TMDB video list.
+
+    Prefers an official trailer, then any trailer, then any YouTube video.
+    Returns an empty string when nothing usable is present.
+    """
+    youtube = [v for v in videos if v.get("site") == "YouTube" and v.get("key")]
+    for predicate in (
+        lambda v: v.get("type") == "Trailer" and v.get("official"),
+        lambda v: v.get("type") == "Trailer",
+        lambda v: True,
+    ):
+        for video in youtube:
+            if predicate(video):
+                return video["key"]
+    return ""

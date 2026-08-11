@@ -50,6 +50,11 @@ class Title(models.Model):
     poster_path = models.CharField(max_length=255, blank=True)
     backdrop_path = models.CharField(max_length=255, blank=True)
     runtime = models.PositiveIntegerField(null=True, blank=True, help_text="Minutes")
+    trailer_key = models.CharField(
+        max_length=32,
+        blank=True,
+        help_text="YouTube video key for the trailer, from TMDB",
+    )
     rating = models.DecimalField(
         max_digits=3,
         decimal_places=1,
@@ -93,3 +98,11 @@ class Title(models.Model):
 
     def get_absolute_url(self):
         return reverse("catalog:title_detail", args=[self.slug])
+
+    @property
+    def has_trailer(self):
+        """True when a trailer is available to play."""
+        return bool(self.trailer_key)
+
+    def get_watch_url(self):
+        return reverse("catalog:title_watch", args=[self.slug])
