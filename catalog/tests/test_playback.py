@@ -56,3 +56,33 @@ def test_detail_page_links_to_watch_when_a_trailer_exists(client, matrix):
     matrix.save()
     response = client.get(matrix.get_absolute_url())
     assert b"/watch/" in response.content
+
+
+@patch("catalog.tmdb.requests.get")
+def test_fetch_movie_videos_requests_the_videos_endpoint(mock_get):
+    mock_get.return_value.json.return_value = {
+        "results": [{"site": "YouTube", "type": "Trailer", "key": "trailer456"}]
+    }
+    mock_get.return_value.raise_for_status.return_value = None
+    videos = tmdb.fetch_movie_videos(603)
+    assert videos[0]["key"] == "trailer456"
+    assert "/movie/603/videos" in mock_get.call_args[0][0]
+
+
+@patch("catalog.tmdb.fetch_movie_videos")
+@patch("catalog.tmdb.fetch_movie")
+def test_import_title_stores_the_trailer_key(mock_fetch, mock_videos):
+    mock_fetch.return_value = {
+        "id": 603,
+        "title": "The Matrix",
+        "overview": "",
+        "release_date": "1999-03-30",
+        "runtime": 136,
+        "vote_average": 8.7,
+        "genres": [],
+    }
+    mock_videos.return_value = [
+        {"site": "YouTube", "type": "Trailer", "key": "trailer456", "official": True}
+    ]
+    title = tmdb.import_title(603)
+    assert title.trailer_key == "trailer456"
