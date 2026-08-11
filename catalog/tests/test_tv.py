@@ -106,3 +106,34 @@ def test_home_shows_both_by_default(client):
     response = client.get("/")
     assert b"The Matrix" in response.content
     assert b"Breaking Bad" in response.content
+
+
+@patch("catalog.tmdb.requests.get")
+def test_fetch_tv_requests_the_right_endpoint(mock_get):
+    mock_get.return_value.json.return_value = TV_SAMPLE
+    mock_get.return_value.raise_for_status.return_value = None
+    data = tmdb.fetch_tv(1396)
+    assert data["name"] == "Breaking Bad"
+    assert "/tv/1396" in mock_get.call_args[0][0]
+
+
+@patch("catalog.tmdb.requests.get")
+def test_fetch_tv_videos_requests_the_videos_endpoint(mock_get):
+    mock_get.return_value.json.return_value = {
+        "results": [{"site": "YouTube", "type": "Trailer", "key": "bbtrailer"}]
+    }
+    mock_get.return_value.raise_for_status.return_value = None
+    videos = tmdb.fetch_tv_videos(1396)
+    assert videos[0]["key"] == "bbtrailer"
+    assert "/tv/1396/videos" in mock_get.call_args[0][0]
+
+
+@patch("catalog.tmdb.fetch_tv_videos")
+@patch("catalog.tmdb.fetch_tv")
+def test_import_tv_stores_the_trailer_key(mock_fetch, mock_videos):
+    mock_fetch.return_value = TV_SAMPLE
+    mock_videos.return_value = [
+        {"site": "YouTube", "type": "Trailer", "key": "bbtrailer", "official": True}
+    ]
+    title = tmdb.import_tv(1396)
+    assert title.trailer_key == "bbtrailer"
