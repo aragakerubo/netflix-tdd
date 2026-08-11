@@ -1,7 +1,18 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
 
 from .models import Genre, Title
+
+
+class SignupView(CreateView):
+    """Let a visitor create an account, then send them to log in."""
+
+    form_class = UserCreationForm
+    template_name = "registration/signup.html"
+    success_url = reverse_lazy("login")
 
 
 def home(request):
