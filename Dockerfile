@@ -14,4 +14,5 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "python manage.py migrate --noinput && { [ \"$POPULATE_ON_START\" = \"1\" ] && python manage.py populate_catalog --pages ${POPULATE_PAGES:-3} || true; } && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3"]
+# On a Render paid plan, you can remove the migrate from CMD and update the render.yaml file
+CMD ["sh", "-c", "python manage.py migrate --noinput && { [ \"$POPULATE_ON_START\" = \"1\" ] && python manage.py populate_catalog --pages ${POPULATE_PAGES:-3} --media ${POPULATE_MEDIA:-both} || true; } && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3"]

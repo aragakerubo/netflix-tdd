@@ -17,4 +17,7 @@ services:
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:?set your domain in .env}
       CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-}
       TMDB_API_KEY: ${TMDB_API_KEY:-}
+      POPULATE_ON_START: ${POPULATE_ON_START:-0}
+      POPULATE_PAGES: ${POPULATE_PAGES:-3}
+      POPULATE_MEDIA: ${POPULATE_MEDIA:-both}
     restart: unless-stopped
