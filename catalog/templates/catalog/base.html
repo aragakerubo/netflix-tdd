@@ -16,6 +16,18 @@
             <input type="search" name="q" value="{{ query }}" placeholder="Search titles" aria-label="Search titles">
             <button type="submit">Search</button>
         </form>
+        <nav class="user-nav">
+            {% if user.is_authenticated %}
+            <span class="user-name">{{ user.username }}</span>
+            <form method="post" action="{% url 'logout' %}" class="logout">
+                {% csrf_token %}
+                <button type="submit">Log out</button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}">Log in</a>
+            <a class="signup-link" href="{% url 'signup' %}">Sign up</a>
+            {% endif %}
+        </nav>
     </header>
     <main class="site-main">
         {% block content %}{% endblock %}

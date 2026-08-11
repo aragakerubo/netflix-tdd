@@ -70,3 +70,17 @@ def test_editor_adds_a_title_through_the_admin(live_server, page, django_user_mo
     # It now appears on the public home page.
     page.goto(live_server.url)
     page.get_by_role("link", name="The Matrix").wait_for()
+
+
+def test_visitor_logs_in_and_sees_a_logout_control(
+    live_server, page, django_user_model
+):
+    django_user_model.objects.create_user(username="cinephile", password="pass12345")
+
+    page.goto(live_server.url + "/accounts/login/")
+    page.get_by_label("Username:").fill("cinephile")
+    page.get_by_label("Password:").fill("pass12345")
+    page.get_by_role("button", name="Log in").click()
+
+    # Back on the site, the header now offers a way out.
+    page.get_by_role("button", name="Log out").wait_for()
