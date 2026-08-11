@@ -5,6 +5,13 @@
     <h1 class="hero-title">Reelflix</h1>
     <p class="hero-tag">Browse and search the catalog.</p>
 </section>
+<nav class="media-filter">
+    <a href="{% url 'catalog:home' %}?q={{ query }}" class="{% if not media %}active{% endif %}">All</a>
+    <a href="{% url 'catalog:home' %}?q={{ query }}&media=movie"
+        class="{% if media == 'movie' %}active{% endif %}">Movies</a>
+    <a href="{% url 'catalog:home' %}?q={{ query }}&media=tv" class="{% if media == 'tv' %}active{% endif %}">TV
+        Shows</a>
+</nav>
 <h2 class="section-title">{% if query %}Results for "{{ query }}"{% else %}Browse{% endif %}</h2>
 {% include "catalog/_title_grid.html" %}
 {% endblock %}

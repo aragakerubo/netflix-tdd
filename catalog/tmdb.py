@@ -115,3 +115,80 @@ def pick_trailer_key(videos):
             if predicate(video):
                 return video["key"]
     return ""
+
+
+def fetch_tv(tmdb_id):
+    """Return TMDB's details payload for a TV show by its numeric id."""
+    api_key = os.environ.get("TMDB_API_KEY", "")
+    url = f"{TMDB_BASE_URL}/tv/{tmdb_id}"
+    response = requests.get(url, params={"api_key": api_key}, timeout=10)
+    response.raise_for_status()
+    return response.json()
+
+
+def fetch_tv_videos(tmdb_id):
+    """Return TMDB's video list for a TV show."""
+    api_key = os.environ.get("TMDB_API_KEY", "")
+    url = f"{TMDB_BASE_URL}/tv/{tmdb_id}/videos"
+    response = requests.get(url, params={"api_key": api_key}, timeout=10)
+    response.raise_for_status()
+    return response.json().get("results", [])
+
+
+def import_tv(tmdb_id):
+    """Fetch a TV show and create or update the matching Title.
+
+    TMDB's TV payload differs from its movie payload: the title is `name`, the
+    date is `first_air_date`, and runtime is `episode_run_time`, a list of
+    per-episode lengths. Everything else maps the same way as a movie.
+    """
+    data = fetch_tv(tmdb_id)
+
+    vote = data.get("vote_average")
+    runtimes = data.get("episode_run_time") or []
+    title, _ = Title.objects.update_or_create(
+        tmdb_id=data["id"],
+        defaults={
+            "name": data["name"],
+            "description": data.get("overview", ""),
+            "year": _year_from(data.get("first_air_date")),
+            "runtime": runtimes[0] if runtimes else None,
+            "rating": round(vote, 1) if vote is not None else None,
+            "poster_path": data.get("poster_path") or "",
+            "backdrop_path": data.get("backdrop_path") or "",
+            "media_type": Title.MediaType.TV,
+        },
+    )
+
+    try:
+        title.trailer_key = pick_trailer_key(fetch_tv_videos(data["id"]))
+        title.save(update_fields=["trailer_key"])
+    except Exception:
+        # A missing or failing video list should not fail the whole import.
+        pass
+
+    genres = []
+    for entry in data.get("genres", []):
+        genre, _ = Genre.objects.get_or_create(name=entry["name"])
+        genres.append(genre)
+    title.genres.set(genres)
+
+    return title
+
+
+def fetch_popular_tv(page=1):
+    """Return one page of TMDB's popular TV shows as summary objects."""
+    api_key = os.environ.get("TMDB_API_KEY", "")
+    url = f"{TMDB_BASE_URL}/tv/popular"
+    response = requests.get(url, params={"api_key": api_key, "page": page}, timeout=10)
+    response.raise_for_status()
+    return response.json()["results"]
+
+
+def populate_popular_tv(pages=1):
+    """Import popular TV shows from TMDB, one detail fetch per show."""
+    imported = []
+    for page in range(1, pages + 1):
+        for summary in fetch_popular_tv(page):
+            imported.append(import_tv(summary["id"]))
+    return imported

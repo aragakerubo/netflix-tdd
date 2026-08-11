@@ -123,3 +123,16 @@ def test_user_saves_a_title_to_their_list(live_server, page, django_user_model):
     page.get_by_role("button", name="Remove from My List").wait_for()
     page.get_by_role("link", name="My List").click()
     page.get_by_role("link", name="The Matrix").wait_for()
+
+
+def test_visitor_filters_the_grid_to_tv_shows(live_server, page):
+    from catalog.models import Title
+
+    Title.objects.create(name="The Matrix", media_type="movie", tmdb_id=603)
+    Title.objects.create(name="Breaking Bad", media_type="tv", tmdb_id=1396)
+
+    page.goto(live_server.url)
+    page.get_by_role("link", name="TV Shows").click()
+
+    page.get_by_role("link", name="Breaking Bad").wait_for()
+    assert page.get_by_role("link", name="The Matrix").count() == 0
