@@ -3,7 +3,10 @@ from django.http import JsonResponse, Http404
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
 
+from .models import Genre, Title, WatchlistItem
 from .models import Genre, Title
 
 
@@ -30,7 +33,15 @@ def home(request):
 
 def title_detail(request, slug):
     title = get_object_or_404(Title, slug=slug)
-    return render(request, "catalog/title_detail.html", {"title": title})
+    in_watchlist = (
+        request.user.is_authenticated
+        and WatchlistItem.objects.filter(user=request.user, title=title).exists()
+    )
+    return render(
+        request,
+        "catalog/title_detail.html",
+        {"title": title, "in_watchlist": in_watchlist},
+    )
 
 
 def genre_detail(request, slug):
@@ -49,6 +60,29 @@ def title_watch(request, slug):
     if not title.has_trailer:
         raise Http404("No trailer available for this title.")
     return render(request, "catalog/title_watch.html", {"title": title})
+
+
+@login_required
+def watchlist(request):
+    """The signed-in user's saved titles."""
+    titles = request.user.watchlist_titles
+    return render(request, "catalog/watchlist.html", {"titles": titles})
+
+
+@login_required
+def watchlist_add(request, slug):
+    """Save a title. Idempotent, so adding twice is harmless."""
+    title = get_object_or_404(Title, slug=slug)
+    WatchlistItem.objects.get_or_create(user=request.user, title=title)
+    return redirect(title.get_absolute_url())
+
+
+@login_required
+def watchlist_remove(request, slug):
+    """Remove a title from the user's list."""
+    title = get_object_or_404(Title, slug=slug)
+    WatchlistItem.objects.filter(user=request.user, title=title).delete()
+    return redirect(title.get_absolute_url())
 
 
 def healthz(request):

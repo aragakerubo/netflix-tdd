@@ -18,6 +18,7 @@
         </form>
         <nav class="user-nav">
             {% if user.is_authenticated %}
+            <a href="{% url 'catalog:watchlist' %}">My List</a>
             <span class="user-name">{{ user.username }}</span>
             <form method="post" action="{% url 'logout' %}" class="logout">
                 {% csrf_token %}

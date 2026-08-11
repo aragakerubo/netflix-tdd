@@ -420,3 +420,28 @@ a {
   height: 100%;
   border: 0;
 }
+
+/* Watchlist */
+.listactions {
+  margin: 0 0 1rem;
+}
+
+.listactions form {
+  margin: 0;
+}
+
+.list-button {
+  padding: 0.55rem 1.2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--edge);
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.list-button:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}

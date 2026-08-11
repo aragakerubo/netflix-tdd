@@ -21,10 +21,23 @@
                 {% endfor %}
             </p>
             {% endif %}
-            {% if title.has_trailer %}
-            <p class="play">
-                <a class="play-button" href="{{ title.get_watch_url }}">Play trailer</a>
+            {% if user.is_authenticated %}
+            <p class="listactions">
+                {% if in_watchlist %}
+            <form method="post" action="{% url 'catalog:watchlist_remove' title.slug %}">
+                {% csrf_token %}
+                <button type="submit" class="list-button">Remove from My List</button>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'catalog:watchlist_add' title.slug %}">
+                {% csrf_token %}
+                <button type="submit" class="list-button">Add to My List</button>
+            </form>
+            {% endif %}
             </p>
+            {% endif %}
+            {% if title.has_trailer %}
+            <p class="play"><a class="play-button" href="{{ title.get_watch_url }}">Play trailer</a></p>
             {% endif %}
             {% if title.description %}<p class="description">{{ title.description }}</p>{% endif %}
             <dl class="meta">
