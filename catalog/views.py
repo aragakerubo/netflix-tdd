@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
@@ -41,6 +41,14 @@ def genre_detail(request, slug):
         "catalog/genre_detail.html",
         {"genre": genre, "titles": titles},
     )
+
+
+def title_watch(request, slug):
+    """Play a title's trailer. 404s when no trailer is available."""
+    title = get_object_or_404(Title, slug=slug)
+    if not title.has_trailer:
+        raise Http404("No trailer available for this title.")
+    return render(request, "catalog/title_watch.html", {"title": title})
 
 
 def healthz(request):

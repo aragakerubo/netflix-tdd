@@ -384,3 +384,39 @@ a {
 .auth-alt a {
   color: var(--gold);
 }
+
+/* Trailer playback */
+.play {
+  margin: 0 0 1rem;
+}
+
+.play-button {
+  display: inline-block;
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius);
+  background: var(--gold);
+  color: #23180a;
+  font-weight: 700;
+}
+
+.play-button:hover {
+  filter: brightness(1.08);
+}
+
+.player {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--edge);
+  background: #000;
+}
+
+.player iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}

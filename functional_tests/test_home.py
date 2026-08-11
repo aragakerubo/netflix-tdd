@@ -84,3 +84,22 @@ def test_visitor_logs_in_and_sees_a_logout_control(
 
     # Back on the site, the header now offers a way out.
     page.get_by_role("button", name="Log out").wait_for()
+
+
+def test_visitor_plays_a_trailer_from_the_detail_page(live_server, page):
+    from catalog.models import Title
+
+    matrix = Title.objects.create(
+        name="The Matrix",
+        year=1999,
+        description="A hacker learns the truth.",
+        trailer_key="trailer456",
+    )
+
+    page.goto(live_server.url + matrix.get_absolute_url())
+    page.get_by_role("link", name="Play trailer").click()
+
+    # The player page loads with the embedded video.
+    page.wait_for_url("**/watch/")
+    player = page.locator("iframe")
+    player.wait_for()
