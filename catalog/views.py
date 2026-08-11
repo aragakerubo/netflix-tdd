@@ -20,14 +20,18 @@ class SignupView(CreateView):
 
 def home(request):
     query = request.GET.get("q", "").strip()
+    media = request.GET.get("media", "").strip()
+
+    titles = Title.objects.all()
     if query:
-        titles = Title.objects.filter(name__icontains=query)
-    else:
-        titles = Title.objects.all()
+        titles = titles.filter(name__icontains=query)
+    if media in Title.MediaType.values:
+        titles = titles.filter(media_type=media)
+
     return render(
         request,
         "catalog/home.html",
-        {"titles": titles, "query": query},
+        {"titles": titles, "query": query, "media": media},
     )
 
 

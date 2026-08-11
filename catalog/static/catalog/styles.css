@@ -445,3 +445,31 @@ a {
   border-color: var(--gold);
   color: var(--gold);
 }
+
+/* Media type filter */
+.media-filter {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0;
+}
+
+.media-filter a {
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--edge);
+  background: var(--panel);
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+}
+
+.media-filter a:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.media-filter a.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #23180a;
+  font-weight: 700;
+}
